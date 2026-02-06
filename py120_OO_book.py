@@ -88,7 +88,7 @@ class Car:
         print(f'the car model {model} is from year {year} and color {color}.')
 
     def engine_on(self):
-        if not self.engine_on:
+        if not self.engine_is_on:
             self.engine_is_on = True
             print('Engine is now ON')
         else:
@@ -198,14 +198,10 @@ fiat_car.spray_paint('orange')
 
     @classmethod
     def average_mileage(cls, distance, fuel): #no need for an specific car, depends directly of the class name
-        if fuel == 0:
-            print('can not calculate mileage without fuel')
-        else:
-            average_mileage = distance / fuel
-            print(f'the average mileage is {average_mileage:.1f} miles per galon')
-            return average_mileage
+        mileage = distance / fuel
+        print(f'the average mileage is {mileage:.1f} miles per gallon')
 
-Car.average_mileage(100, 5)
+Car.average_mileage(100, 5) # directly calls the class
 Car.average_mileage(100, 0)
 
 ### Exercise 5
@@ -230,20 +226,25 @@ You can use the following code snippets to test your class. Since some tests cau
 '''
 
 class Person:
-    def __init__(self, first, last):
-        self._first = first
-        self._last = last
+    def __init__(self, name, surname):
+        if not name.isalpha() or not surname.isalpha():
+            raise ValueError("name must be alphabetic")
+        self._name = name
+        self._surname = surname
 
     @property
-    def name(self): #return fullname with capitalization
-            return f'{self._first.capitalize()} {self._last.capitalize()}'
+    def name(self):
+        return f'{self._name.title()} {self._surname.title()}'
 
     @name.setter
-    def name(self, fullname_tuple):
-        if len(fullname_tuple) != 2 or not isinstance(fullname_tuple, tuple) or not fullname_tuple[0].isalpha() or not fullname_tuple[1].isalpha():
-            raise ValueError('you must enter a tuple of 2 alphabetic strings')
-        self._first = fullname_tuple[0]
-        self._last = fullname_tuple[1]
+    def name(self, full_name):
+        if not isinstance(full_name, tuple) or len(full_name) != 2:
+            raise TypeError("full name must be a tuple of 2 strings")
+
+        if not full_name[0].isalpha() or not full_name[1].isalpha():
+            raise ValueError("name must be alphabetic")
+
+        self._name, self._surname = full_name
 
 actor = Person('Mark', 'Sinclair')
 print(actor.name)              # Mark Sinclair
@@ -501,4 +502,135 @@ boat1 = Boat()
 boat2 = Boat()
 print(Boat.vehicles())    # 8
 
-'''Exercise 3'''
+'''Exercise 3
+Create a mix-in for the Car and Truck classes from the previous exercise that lets you operate the turn signals: signal left, signal right, and signal off. Use the following code to test your code.'''
+
+# additional code
+car1.signal_left()       # Signalling left
+truck1.signal_right()    # Signalling right
+car1.signal_off()        # Signal is now off
+truck1.signal_off()      # Signal is now off
+boat1.signal_left()
+# AttributeError: 'Boat' object has no attribute
+# 'signal_left'
+
+## solution
+
+class SignalMixin:
+    def signal_left(self):
+        print("Signalling left")
+
+    def signal_right(self):
+        print("Signaling right")
+
+    def signal_off(self):
+        print("signal is now off")
+
+class Vehicle:
+    counter = 0
+
+    def __init__(self):
+        Vehicle.counter += 1
+
+    @classmethod
+    def vehicles(cls):
+        return cls.counter  ## this could also be --> return Vehicle.counter (but will not avoid a shadowing problem of the class name)
+
+class Car(SignalMixin, Vehicle):
+    pass
+class Truck(SignalMixin, Vehicle):
+    pass
+class Boat(Vehicle):
+    pass
+
+'''Exercise 4
+Print the method resolution order for cars, trucks, boats, and vehicles as defined in the previous exercise.'''
+
+# solution
+print(Car.mro())
+print(Truck.mro())
+print(Boat.mro())
+
+'''Exercise 5
+We've provided new Car and Truck classes and some tests below. Refactor them to use inheritance for as much behavior as possible. The tests shown in the code should still work as shown:'''
+
+#Code to be modified
+
+class Car:
+
+    def __init__(self, fuel_capacity, mpg):
+        self.capacity = fuel_capacity
+        self.mpg = mpg
+
+    def max_range_in_miles(self):
+        return self.capacity * self.mpg
+
+    def family_drive(self):
+        print('Taking the family for a drive')
+
+class Truck:
+
+    def __init__(self, fuel_capacity, mpg):
+        self.capacity = fuel_capacity
+        self.mpg = mpg
+
+    def max_range_in_miles(self):
+        return self.capacity * self.mpg
+
+    def hookup_trailer(self):
+        print('Hooking up trailer')
+
+car = Car(12.5, 25.4)
+truck = Truck(150.0, 6.25)
+
+print(car.max_range_in_miles())         # 317.5
+print(truck.max_range_in_miles())       # 937.5
+
+car.family_drive()     # Taking the family for a drive
+truck.hookup_trailer() # Hooking up trailer
+
+try:
+    truck.family_drive()
+except AttributeError:
+    print('No family_drive method for Truck')
+# No family_drive method for Truck
+
+try:
+    car.hookup_trailer()
+except AttributeError:
+    print('No hookup_trailer method for Car')
+# No hookup_trailer method for Car
+
+### Solution
+
+class Vehicle:
+    counter = 0
+
+    def __init__(self, fuel_capacity, mpg):
+        self.capacity = fuel_capacity
+        self.mpg = mpg
+        Vehicle.counter += 1
+
+    def max_range_in_miles(self):
+        return self.capacity * self.mpg
+
+    @classmethod
+    def vehicles(cls):
+        return Vehicle.counter
+
+class Car(Vehicle):
+
+    def family_drive(self):
+        print('Taking the family for a drive')
+
+class Truck(Vehicle):
+
+    def hookup_trailer(self):
+        print('Hooking up trailer')
+
+## Alternative solution, to create a init method in the subclasses and use the super() function
+
+class Car(Vehicle):
+
+    def __init__(self, fuel_capacity, mpg):
+        super().__init__(fuel_capacity, mpg)

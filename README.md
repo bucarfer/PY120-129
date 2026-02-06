@@ -1,14 +1,13 @@
 ### 🔗 How to create a local repository and Link to GitHub (Quick Steps)
 
 1. **Create and enter your project folder:**
-cd ~
+cd documents/0.2LaunchSchool/VS_Repository/
 mkdir repo_name
 cd repo_name
 
 
 2. **Initialize Git:**
 git init
-
 
 3. **Create a GitHub repo with same name (empty, no README).**
 

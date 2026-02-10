@@ -114,3 +114,44 @@ class Cat:
 # `self.__class__.count += 1` but that choice has inherit implications I'll see later
 
 ### 6. Colorful Cat
+# Create a class named Cat that prints a greeting when the greet instance method is invoked. The greeting should include the name and color of the cat. Use a class constant to define the color.
+
+##solution
+
+class Cat:
+    COLOR = "purple" # class CONSTANT
+    def __init__(self, name):
+        self._name = name
+
+    @property
+    def name(self):
+        return self._name
+
+    def greet(self):
+        print(f"My name is {self.name} and I'm a {Cat.COLOR} cat!")
+        # use of Cat.COLOR to access class contant within instance method
+
+
+cat1 = Cat("Sophie")
+cat1.greet()
+# Hello! My name is Sophie and I'm a purple cat!
+
+### 7. Identify yourself (Part2)
+# Update the following code so it prints I'm Sophie! when it invokes print(kitty)
+
+class Cat:
+    def __init__(self, name):
+        self._name = name
+
+    @property
+    def name(self):
+        return self._name
+
+# Comments show expected output
+kitty = Cat('Sophie')
+print(kitty)        # I'm Sophie!
+
+## solution
+    def __str__(self):
+        return f"I'm a {self.name}!"
+    #Absence of __str__ method Python falls back to object.__str__

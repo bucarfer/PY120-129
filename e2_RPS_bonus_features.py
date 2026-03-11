@@ -8,23 +8,41 @@ class Player:
 
 class Computer(Player):
 
-    def __init__(self, name):
+    def __init__(self):
         super().__init__()
-        self.name = name
         self._last_human_move = None
+        self.name = "Computer"
+
+class R2D2(Computer):
+
+    def __init__(self):
+        super().__init__()
+        self.name = "R2D2"
 
     def choose(self):
-        if self.name == "R2D2":
-            self.move = "rock"
-        elif self.name == "HAL":
-            WEIGHTED_CHOICES = ["scissors", "scissors", "scissors", "rock", "paper", "lizard", "spock"]
-            self.move = random.choice(WEIGHTED_CHOICES)
-        elif self.name == "Daneel":
-            if self._last_human_move is None:
-                self.move = random.choice(Player.CHOICES)
-            else:
-                self.move = self._last_human_move
+        self.move = "rock"
 
+class HAL(Computer):
+
+    def __init__(self):
+        super().__init__()
+        self.name = "HAL"
+
+    def choose(self):
+        weighted_choices = ["scissors", "scissors", "scissors", "rock", "paper", "lizard", "spock"]
+        self.move = random.choice(weighted_choices)
+
+class Daneel(Computer):
+
+    def __init__(self):
+        super().__init__()
+        self.name = "Daneel"
+
+    def choose(self):
+        if self._last_human_move is None:
+                self.move = random.choice(Player.CHOICES)
+        else:
+            self.move = self._last_human_move
 
 class Human(Player):
     def __init__(self):
@@ -42,12 +60,13 @@ class Human(Player):
         self.move = choice
 
 class RPSGame:
+    ROBOT_SUBCLASSES = [R2D2(), HAL(), Daneel()]
+
     def __init__(self):
-        # I thought we would add computer and human as instance parameters,
-        # but after thinking a bit more about it, it does not make sense
-        ROBOT_NAMES = ["R2D2", "HAL", "Daneel"]
         self._human = Human()
-        self._computer = Computer(random.choice(ROBOT_NAMES))
+        self._computer = random.choice(self.ROBOT_SUBCLASSES)
+        # or self._computer = random.choice(RPSGame.ROBOT_SUBCLASSES)
+        # *2 how to create only one robot instance to save memory
 
     def _display_welcome_message(self):
         print("Welcome to Rock, Paper, Scissors game.")
@@ -137,10 +156,10 @@ class RPSGame:
     #     return answer.lower().startswith("y")
 
     def play(self):
-        self._human_dict_count = {choice:0 for choice in Player.CHOICES}
-        self._computer_dict_count = {choice:0 for choice in Player.CHOICES}
-
         while True:
+            self._human_dict_count = {choice:0 for choice in Player.CHOICES}
+            self._computer_dict_count = {choice:0 for choice in Player.CHOICES}
+
             self._human_count = 0
             self._computer_count = 0
 
@@ -210,3 +229,16 @@ RPSGame().play()
 # self as a parameter: “who am I working on?”
 # self with dot notation: “use that same object to get/set something or call something on it.”
 # Once you keep “definition time” and “call time” separate in your head, the double role of self feels more natural.
+
+### *2
+# R2D2           # This is the CLASS itself (like a blueprint)
+# R2D2()         # This CREATES an instance (like building from the blueprint)
+
+# Storing classes (blueprints)
+# ROBOT_SUBCLASSES = [R2D2, HAL, Daneel]
+
+# # Pick a class
+# robot_class = random.choice(ROBOT_SUBCLASSES)  # robot_class now holds R2D2, HAL, or Daneel (the class)
+
+# # Create an instance from that class
+# self._computer = robot_class()  # Now we call it with () to create an instance

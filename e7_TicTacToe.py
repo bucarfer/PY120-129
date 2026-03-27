@@ -1,3 +1,6 @@
+import random
+import os
+
 '''Description
 Board of 3x3 grid
 First olayer to mark 3 squares wins
@@ -22,9 +25,6 @@ Player (n)
     Play (v)
     Human (n)
     Computer (n)'''
-
-import random
-import os
 
 def clear_screen():
     os.system('clear')
